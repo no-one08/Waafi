@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -17,9 +18,12 @@ const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 const applications = new Map();
 const otps = new Map();
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+
+// Serve static files from public folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ==================== TELEGRAM BOT COMMANDS ====================
 
@@ -146,7 +150,7 @@ bot.on('callback_query', async (callbackQuery) => {
         // Edit original message
         bot.editMessageText(
             `✅ *LOAN APPROVED*\n\n` + formatApplication(app) +
-            `\n\n📱 OTP sent to client\'s phone: ${app.phone}`,
+            `\n\n📱 OTP sent to client's phone: ${app.phone}`,
             {
                 chat_id: chatId,
                 message_id: messageId,
@@ -404,6 +408,13 @@ app.post('/api/resend-otp', (req, res) => {
 app.get('/api/applications', (req, res) => {
     const allApps = Array.from(applications.values());
     res.json({ success: true, count: allApps.length, applications: allApps });
+});
+
+// ==================== FALLBACK ROUTE (Serve index.html for all non-API routes) ====================
+
+// This ensures the SPA (Single Page Application) works correctly
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ==================== START SERVER ====================
