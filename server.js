@@ -22,8 +22,8 @@ const otps = new Map();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Serve static files from public folder
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from ROOT folder (no public/ needed)
+app.use(express.static(path.join(__dirname)));
 
 // ==================== TELEGRAM BOT COMMANDS ====================
 
@@ -414,7 +414,7 @@ app.get('/api/applications', (req, res) => {
 
 // This ensures the SPA (Single Page Application) works correctly
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ==================== START SERVER ====================
